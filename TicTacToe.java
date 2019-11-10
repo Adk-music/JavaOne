@@ -7,6 +7,7 @@ public class TicTacToe {
     private static char[][] field;
     private static int fieldSizeX;
     private static int fieldSizeY;
+    private static int winConditionCount;
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final Random RANDOM = new Random();
     private static final char DOT_HUMAN = 'X';
@@ -14,8 +15,9 @@ public class TicTacToe {
     private static final char DOT_EMPTY = '.';
 
     private static void initField() {
-        fieldSizeX = 3;
-        fieldSizeY = 3;
+        fieldSizeX = 5;
+        fieldSizeY = 5;
+        winConditionCount = 4;
         field = new char[fieldSizeY][fieldSizeX];
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
@@ -60,32 +62,39 @@ public class TicTacToe {
         field[y][x] = DOT_AI;
     }
     private static boolean checkWin(char c) {
-        boolean diagonalResult = true;
-        boolean backDiagonalResult = true;
+        boolean[] diagonalResult = new boolean[fieldSizeX];
+        boolean[] backDiagonalResult = new boolean[fieldSizeY];
 
        for (int i = 0; i < fieldSizeY; i++){
-          if (field[i][0] == c && field[i][1] == c && field[i][2] == c) return true;
-           if (field[0][i] == c && field[1][i] == c && field[2][i] == c) return true;
-           diagonalResult &= field[i][i] == c;
-           backDiagonalResult &= field[i][fieldSizeY - 1 - i] == c;
+           boolean[] verticalResult = new boolean[fieldSizeY];
+           boolean[] horizontalResult = new boolean[fieldSizeX];
+           for (int j = 0; j< fieldSizeY; j++ ){
+               horizontalResult[j] = field[i][j] == c;
+               verticalResult[j] = field[j][i] == c;
            }
-       if (diagonalResult) return true;
-       if (backDiagonalResult) return true;
+           diagonalResult[i] = field[i][i] == c;
+           backDiagonalResult[i] = field[i][fieldSizeY - 1 - i] == c;
 
-  /*      if (field[0][0] == c && field[0][1] == c && field[0][2] == c) return true;
-        if (field[1][0] == c && field[1][1] == c && field[1][2] == c) return true;
-        if (field[2][0] == c && field[2][1] == c && field[2][2] == c) return true;
+           if (checkWinCombination(verticalResult) || checkWinCombination(horizontalResult)){
+               return true;
+           }
+           }
+        return checkWinCombination(diagonalResult) || checkWinCombination(backDiagonalResult);
+    }
 
-
-        if (field[0][0] == c && field[1][0] == c && field[2][0] == c) return true;
-        if (field[0][1] == c && field[1][1] == c && field[2][1] == c) return true;
-        if (field[0][2] == c && field[1][2] == c && field[2][2] == c) return true;
-
-        if (field[0][0] == c && field[1][1] == c && field[2][2] == c) return true;
-        if (field[0][2] == c && field[1][1] == c && field[2][0] == c) return true;
-
-   */
-        return false;
+    private static boolean checkWinCombination(boolean[] resultLine){
+        int successCount = 0;
+        for (int i = 0; i < resultLine.length; i++) {
+             if (resultLine[i]){
+                 successCount++;
+                 if (successCount == winConditionCount){
+                     return true;
+                 }
+             } else {
+                 return false;
+             }
+        }
+        return true;
     }
     private static boolean isDraw() {
         for (int i = 0; i < fieldSizeY; i++) {
